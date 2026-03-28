@@ -81,14 +81,18 @@
   
   /* Mission Vision Cards */
   .mission-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+   background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      color: white;
     border-radius: 15px;
     padding: 2rem;
     height: 100%;
     transition: transform 0.3s ease;
   }
-  
+    .mission-card p {
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+
   .mission-card:hover {
     transform: translateY(-5px);
   }
@@ -96,6 +100,7 @@
   .mission-card h3 {
     font-size: 1.5rem;
     font-weight: 600;
+      color: #ffffff;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -215,12 +220,13 @@
     border-radius: 50%;
     margin: 0 auto 1.5rem;
     border: 4px solid transparent;
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    padding: 4px;
+    {#background: linear-gradient(135deg, #4CAF50, #45a049);#}
+    padding: 0;
     transition: all 0.4s ease;
     overflow: hidden;
     position: relative;
   }
+
   
   .team-avatar::before {
     content: '';
@@ -265,7 +271,12 @@
     position: relative;
     overflow: hidden;
   }
-  
+  .team-avatar-inner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
   .team-avatar-inner::before {
     content: attr(data-initial);
     position: absolute;
@@ -476,7 +487,9 @@
       <div class="col-lg-6 col-md-8 mx-auto mb-4 team-lead">
         <div class="team-card">
           <div class="team-avatar">
-            <div class="team-avatar-inner" data-initial="A">A</div>
+            <div class="team-avatar-inner">
+                 <img src="/media/team/alekhya.png">
+            </div>
           </div>
           <div class="team-name">Alekhya Mysore</div>
           <div class="team-role">Team Lead</div>
@@ -488,7 +501,9 @@
       <div class="col-lg-6 col-md-6">
         <div class="team-card">
           <div class="team-avatar">
-            <div class="team-avatar-inner" data-initial="D">D</div>
+            <div class="team-avatar-inner">
+                 <img src="/media/team/dipti.jpg">
+            </div>
           </div>
           <div class="team-name">Dipti Patel</div>
           <div class="team-role">Developer</div>
@@ -498,7 +513,9 @@
       <div class="col-lg-6 col-md-6">
         <div class="team-card">
           <div class="team-avatar">
-            <div class="team-avatar-inner" data-initial="H">H</div>
+            <div class="team-avatar-inner">
+                 <img src="/media/team/harman.jpg">
+            </div>
           </div>
           <div class="team-name">Harmandeep Kaur</div>
           <div class="team-role">Developer</div>
@@ -508,7 +525,9 @@
       <div class="col-lg-6 col-md-6">
         <div class="team-card">
           <div class="team-avatar">
-            <div class="team-avatar-inner" data-initial="G">G</div>
+            <div class="team-avatar-inner">
+                 <img src="/media/team/gargi.png">
+            </div>
           </div>
           <div class="team-name">Gargi Rami</div>
           <div class="team-role">Developer</div>
@@ -518,7 +537,9 @@
       <div class="col-lg-6 col-md-6">
         <div class="team-card">
           <div class="team-avatar">
-            <div class="team-avatar-inner" data-initial="R">R</div>
+            <div class="team-avatar-inner">
+                 <img src="/media/team/raman.png">
+            </div>
           </div>
           <div class="team-name">Ramandeep Kaur Saini</div>
           <div class="team-role">Developer</div>
