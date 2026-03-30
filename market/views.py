@@ -21,7 +21,8 @@ from django.contrib.auth.views import PasswordResetView
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
-
+from django.contrib import messages
+from django.db.models import Q
 
 # Create your views here.
 
@@ -763,68 +764,6 @@ class HomeView(View):
             'featured_products': featured_products,
         })
 
-
-# class MarketplaceView(ProductListView):
-#     template_name = 'market/marketplace.html'
-#
-#     def get_queryset(self):
-#         queryset = super().get_queryset().order_by('-created_at')
-#
-#         # Get search parameters
-#         q = self.request.GET.get('q', '').strip()
-#         category = self.request.GET.get('category', '').strip()
-#         location = self.request.GET.get('location', '').strip()
-#         art_style = self.request.GET.get('art_style', '').strip()
-#         min_price = self.request.GET.get('min_price', '').strip()
-#         max_price = self.request.GET.get('max_price', '').strip()
-#         sustainability_rating = self.request.GET.get('sustainability_rating', '').strip()
-#
-#         # Apply filters
-#         if q:
-#             queryset = queryset.filter(
-#                 Q(title__icontains=q) |
-#                 Q(description__icontains=q) |
-#                 Q(materials__icontains=q) |
-#                 Q(owner__username__icontains=q)
-#             )
-#         if category:
-#             queryset = queryset.filter(category=category)
-#         if location:
-#             queryset = queryset.filter(location__icontains=location)
-#         if art_style:
-#             queryset = queryset.filter(art_style=art_style)
-#         if min_price:
-#             try:
-#                 queryset = queryset.filter(price__gte=float(min_price))
-#             except ValueError:
-#                 pass
-#         if max_price:
-#             try:
-#                 queryset = queryset.filter(price__lte=float(max_price))
-#             except ValueError:
-#                 pass
-#         if sustainability_rating:
-#             try:
-#                 queryset = queryset.filter(sustainability_rating__gte=int(sustainability_rating))
-#             except ValueError:
-#                 pass
-#
-#         return queryset
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#
-#         # Add search parameters to context
-#         context['art_style'] = self.request.GET.get('art_style', '')
-#         context['min_price'] = self.request.GET.get('min_price', '')
-#         context['max_price'] = self.request.GET.get('max_price', '')
-#         context['sustainability_rating'] = self.request.GET.get('sustainability_rating', '')
-#
-#         # Add choices for dropdowns
-#         context['art_styles'] = Product.ART_STYLE_CHOICES
-#
-#         return context
-
 class MarketplaceView(ProductListView):
     template_name = 'market/marketplace.html'
 
@@ -859,17 +798,33 @@ class MarketplaceView(ProductListView):
         if art_style:
             queryset = queryset.filter(art_style=art_style)
 
+        min_price_val = None
+        max_price_val = None
+
         if min_price:
             try:
-                queryset = queryset.filter(price__gte=float(min_price))
+                min_price_val = float(min_price)
             except ValueError:
-                pass
+                min_price_val = None
 
         if max_price:
             try:
-                queryset = queryset.filter(price__lte=float(max_price))
+                max_price_val = float(max_price)
             except ValueError:
-                pass
+                max_price_val = None
+
+        if min_price_val is not None and max_price_val is not None:
+            if max_price_val < min_price_val:
+                messages.error(self.request, "Max Price should be greater than or equal to Min Price.")
+                return Product.objects.none()
+            else:
+                queryset = queryset.filter(price__gte=min_price_val, price__lte=max_price_val)
+        else:
+            if min_price_val is not None:
+                queryset = queryset.filter(price__gte=min_price_val)
+
+            if max_price_val is not None:
+                queryset = queryset.filter(price__lte=max_price_val)
 
         if sustainability_rating:
             try:

@@ -761,5 +761,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+    document.addEventListener('DOMContentLoaded', function () {
+    const filterForm = document.getElementById('filterForm');
+
+    if (filterForm) {
+        filterForm.addEventListener('submit', function (e) {
+            const minPrice = parseFloat(document.querySelector('[name="min_price"]').value) || 0;
+            const maxPriceValue = document.querySelector('[name="max_price"]').value;
+            const maxPrice = maxPriceValue ? parseFloat(maxPriceValue) : null;
+
+            if (maxPrice !== null && maxPrice < minPrice) {
+                e.preventDefault();
+                alert('Max Price should be greater than or equal to Min Price.');
+            }
+        });
+    }
+});
 </script>
 {% endblock %}
