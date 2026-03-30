@@ -186,37 +186,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
             })
             .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    notificationItem.classList.remove('unread');
-                    notificationItem.classList.add('read');
-                    this.remove();
-                    
-                    // Update unread count
-                    const unreadCount = document.querySelectorAll('.notification-item.unread').length;
-                    const badge = document.querySelector('.badge-unread');
-                    if (badge) {
-                        if (unreadCount === 0) {
-                            badge.remove();
-                        } else {
-                            badge.textContent = `${unreadCount} new`;
+                .then(data => {
+                    if (data.success) {
+                        notificationItem.classList.remove('unread');
+                        notificationItem.classList.add('read');
+                        this.remove();
+
+                        const unreadCount = data.unread_count;
+
+                        // Update page badge
+                        const pageBadge = document.querySelector('.badge-unread');
+                        if (pageBadge) {
+                            if (unreadCount === 0) {
+                                pageBadge.remove();
+                            } else {
+                                pageBadge.textContent = `${unreadCount} new`;
+                            }
+                        } else if (unreadCount > 0) {
+                            const titleHeading = document.querySelector('h2.fw-bold');
+                            if (titleHeading) {
+                                const newBadge = document.createElement('span');
+                                newBadge.className = 'badge-unread ms-2';
+                                newBadge.textContent = `${unreadCount} new`;
+                                titleHeading.appendChild(newBadge);
+                            }
+                        }
+
+                        // Update navbar badge
+                        const navbarBadge = document.getElementById('navbar-alert-badge');
+                        if (navbarBadge) {
+                            if (unreadCount === 0) {
+                                navbarBadge.style.display = 'none';
+                            } else {
+                                navbarBadge.style.display = 'flex';
+                                navbarBadge.textContent = unreadCount;
+                            }
                         }
                     }
-                }
-            })
+                })
             .catch(error => {
                 console.error('Error marking notification as read:', error);
             });
-        });
-    });
-    
-    // Auto-submit form when checkboxes change (for mark all read)
-    document.querySelectorAll('input[name="notification_ids"]').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const checkedBoxes = document.querySelectorAll('input[name="notification_ids"]:checked');
-            if (checkedBoxes.length > 0) {
-                // You could auto-submit here or just track the selection
-            }
         });
     });
 });

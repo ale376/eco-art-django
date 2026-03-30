@@ -434,7 +434,13 @@ class MarkNotificationReadView(LoginRequiredMixin, View):
         notification = get_object_or_404(Notification, id=notification_id, user=request.user)
         notification.is_read = True
         notification.save()
-        return JsonResponse({'success': True})
+
+        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+
+        return JsonResponse({
+            'success': True,
+            'unread_count': unread_count
+        })
 
 class ProductDeleteView(LoginRequiredMixin, View):
     def post(self, request, pk):

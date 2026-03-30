@@ -431,8 +431,7 @@
                 margin-top: 16px;
             }
         }
-        
-        /* Scroll Effect */
+
         .navbar-scrolled {
             background: rgba(255, 255, 255, 0.98) !important;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
@@ -515,9 +514,10 @@
                             <a class="nav-link position-relative {% if request.path == '/notifications/' %}active{% endif %}" href="{% url 'notifications' %}">
                                 <i class="fas fa-bell nav-icon"></i>
                                 <span>Alerts</span>
-                                {% if unread_notification_count > 0 %}
-                                    <span class="nav-badge notification-badge pulse">{{ unread_notification_count }}</span>
-                                {% endif %}
+                                    <span id="navbar-alert-badge" class="nav-badge notification-badge pulse"
+                                        {% if unread_notification_count == 0 %}style="display: none;"{% endif %}>
+                                            {{ unread_notification_count }}
+                                    </span>
                             </a>
                         </li>
                         <li class="nav-item dropdown nav-user-dropdown">
