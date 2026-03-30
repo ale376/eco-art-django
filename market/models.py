@@ -303,23 +303,6 @@ class Profile(models.Model):
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     social_link = models.URLField(blank=True, null=True)
-    is_artist = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
-
-# for artists
-class ArtistApplication(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    full_name = models.CharField(max_length=200)
-    artist_statement = models.TextField()
-    portfolio_url = models.URLField(blank=True, null=True)
-    years_of_experience = models.IntegerField()
-    specialization = models.CharField(max_length=100)
-    certifications = models.TextField(blank=True, null=True)
-
-    is_approved = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.full_name

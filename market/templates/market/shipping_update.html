@@ -1,6 +1,133 @@
 {% extends 'market/base.html' %}
 
 {% block content %}
+<style>
+.checkout-location-select {
+    min-height: 52px;
+    background-color: #ffffff;
+    color: #212529;
+    border: 1px solid #ced4da;
+    border-radius: 12px;
+    padding-left: 1rem;
+    padding-right: 2.25rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.checkout-location-select:hover {
+    border-color: #b8c0c7;
+}
+.checkout-location-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.12);
+    background-color: #ffffff;
+    color: #212529;
+}
+.checkout-location-select:disabled {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+.checkout-location-select option {
+    background-color: #ffffff;
+    color: #212529;
+}
+.checkout-location-select-na {
+    color: #212529;
+}
+.checkout-location-select.checkout-location-select-native {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    height: calc(1.5em + 0.75rem + 2px);
+    width: 100%;
+}
+.checkout-dropdown {
+    position: relative;
+}
+.checkout-dropdown-trigger {
+    width: 100%;
+    min-height: calc(1.5em + 0.75rem + 2px);
+    height: calc(1.5em + 0.75rem + 2px);
+    padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #212529;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.checkout-dropdown-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.checkout-dropdown-trigger.placeholder {
+    color: #6c757d;
+}
+.checkout-dropdown.open .checkout-dropdown-trigger {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.12);
+}
+.checkout-dropdown.disabled .checkout-dropdown-trigger {
+    background: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+.checkout-dropdown-arrow {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #6c757d;
+    transition: transform 0.2s ease;
+}
+.checkout-dropdown.open .checkout-dropdown-arrow {
+    transform: rotate(180deg);
+}
+.checkout-dropdown-menu {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 1055;
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    max-height: 220px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.checkout-dropdown.open .checkout-dropdown-menu {
+    display: block;
+}
+.checkout-dropdown-option {
+    width: 100%;
+    border: 0;
+    background: #ffffff;
+    color: #212529;
+    padding: 0.6rem 0.95rem;
+    text-align: left;
+    font-size: 0.98rem;
+    line-height: 1.35;
+    cursor: pointer;
+}
+.checkout-dropdown-option:hover {
+    background: #f4f8fb;
+}
+.checkout-dropdown-option.selected {
+    background: #e7f1ff;
+    color: #0b5ed7;
+    font-weight: 600;
+}
+</style>
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -45,31 +172,10 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="id_shipping_city" class="form-label">City</label>
-                                    {{ form.shipping_city }}
-                                    {% if form.shipping_city.errors %}
-                                        <div class="text-danger small mt-1">{{ form.shipping_city.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
                                     <label for="id_shipping_state" class="form-label">State/Province</label>
                                     {{ form.shipping_state }}
                                     {% if form.shipping_state.errors %}
                                         <div class="text-danger small mt-1">{{ form.shipping_state.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="id_shipping_zip_code" class="form-label">ZIP/Postal Code</label>
-                                    {{ form.shipping_zip_code }}
-                                    {% if form.shipping_zip_code.errors %}
-                                        <div class="text-danger small mt-1">{{ form.shipping_zip_code.errors.0 }}</div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -79,6 +185,27 @@
                                     {{ form.shipping_country }}
                                     {% if form.shipping_country.errors %}
                                         <div class="text-danger small mt-1">{{ form.shipping_country.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="id_shipping_city" class="form-label">City</label>
+                                    {{ form.shipping_city }}
+                                    {% if form.shipping_city.errors %}
+                                        <div class="text-danger small mt-1">{{ form.shipping_city.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="id_shipping_zip_code" class="form-label">ZIP/Postal Code</label>
+                                    {{ form.shipping_zip_code }}
+                                    {% if form.shipping_zip_code.errors %}
+                                        <div class="text-danger small mt-1">{{ form.shipping_zip_code.errors.0 }}</div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -98,4 +225,275 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+
+{{ shipping_location_data|json_script:"shipping-location-data" }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const countrySelect = document.getElementById('{{ form.shipping_country.id_for_label }}');
+    const stateSelect = document.getElementById('{{ form.shipping_state.id_for_label }}');
+    const citySelect = document.getElementById('{{ form.shipping_city.id_for_label }}');
+    const locationDataElement = document.getElementById('shipping-location-data');
+
+    if (!countrySelect || !stateSelect || !citySelect || !locationDataElement) {
+        return;
+    }
+
+    const locationData = JSON.parse(locationDataElement.textContent);
+    const statePlaceholder = 'Select state/province';
+    const cityPlaceholder = 'Select city';
+    const countryPlaceholder = 'Select country';
+    const customDropdowns = new Map();
+
+    function closeAllDropdowns(exceptSelectId) {
+        customDropdowns.forEach(function(dropdown, selectId) {
+            if (selectId !== exceptSelectId) {
+                dropdown.wrapper.classList.remove('open');
+            }
+        });
+    }
+
+    function refreshCustomDropdown(selectEl) {
+        const dropdown = customDropdowns.get(selectEl.id);
+        if (dropdown) {
+            dropdown.rebuildMenu();
+        }
+    }
+
+    function createCustomDropdown(selectEl, placeholderText) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'checkout-dropdown';
+        selectEl.parentNode.insertBefore(wrapper, selectEl);
+        wrapper.appendChild(selectEl);
+
+        const trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'checkout-dropdown-trigger placeholder';
+
+        const labelText = document.createElement('span');
+        labelText.className = 'checkout-dropdown-label';
+        labelText.textContent = placeholderText;
+
+        const arrow = document.createElement('span');
+        arrow.className = 'checkout-dropdown-arrow';
+
+        trigger.appendChild(labelText);
+        trigger.appendChild(arrow);
+        wrapper.appendChild(trigger);
+
+        const menu = document.createElement('div');
+        menu.className = 'checkout-dropdown-menu';
+        wrapper.appendChild(menu);
+
+        selectEl.classList.add('checkout-location-select-native');
+
+        const fieldLabel = document.querySelector('label[for="' + selectEl.id + '"]');
+        if (fieldLabel) {
+            fieldLabel.addEventListener('click', function(event) {
+                event.preventDefault();
+                trigger.focus();
+                if (!selectEl.disabled) {
+                    closeAllDropdowns(selectEl.id);
+                    wrapper.classList.toggle('open');
+                }
+            });
+        }
+
+        function rebuildMenu() {
+            const options = Array.from(selectEl.options);
+            menu.innerHTML = '';
+
+            options.forEach(function(option) {
+                if (!option.value) {
+                    return;
+                }
+
+                const optionButton = document.createElement('button');
+                optionButton.type = 'button';
+                optionButton.className = 'checkout-dropdown-option';
+                optionButton.textContent = option.textContent;
+                optionButton.dataset.value = option.value;
+
+                if (option.value === selectEl.value) {
+                    optionButton.classList.add('selected');
+                }
+
+                optionButton.addEventListener('click', function() {
+                    selectEl.value = option.value;
+                    selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    wrapper.classList.remove('open');
+                });
+
+                menu.appendChild(optionButton);
+            });
+
+            const selectedOption = options.find(function(option) {
+                return option.value === selectEl.value;
+            });
+
+            if (selectedOption && selectedOption.value) {
+                labelText.textContent = selectedOption.textContent;
+                trigger.classList.remove('placeholder');
+            } else {
+                labelText.textContent = placeholderText;
+                trigger.classList.add('placeholder');
+            }
+
+            trigger.disabled = selectEl.disabled;
+            wrapper.classList.toggle('disabled', selectEl.disabled);
+
+            if (selectEl.disabled) {
+                wrapper.classList.remove('open');
+            }
+        }
+
+        trigger.addEventListener('click', function() {
+            if (selectEl.disabled) {
+                return;
+            }
+            const isOpen = wrapper.classList.contains('open');
+            closeAllDropdowns(selectEl.id);
+            wrapper.classList.toggle('open', !isOpen);
+        });
+
+        selectEl.addEventListener('change', rebuildMenu);
+
+        customDropdowns.set(selectEl.id, {
+            wrapper: wrapper,
+            rebuildMenu: rebuildMenu,
+        });
+
+        rebuildMenu();
+    }
+
+    createCustomDropdown(countrySelect, countryPlaceholder);
+    createCustomDropdown(stateSelect, statePlaceholder);
+    createCustomDropdown(citySelect, cityPlaceholder);
+
+    function setSelectOptions(selectEl, values, placeholderText, selectedValue) {
+        selectEl.innerHTML = '';
+        const sortedValues = [...values].sort(function(a, b) {
+            return a.localeCompare(b);
+        });
+
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = '';
+        placeholderOption.textContent = placeholderText;
+        selectEl.appendChild(placeholderOption);
+
+        sortedValues.forEach(function(value) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            selectEl.appendChild(option);
+        });
+
+        if (selectedValue && sortedValues.includes(selectedValue)) {
+            selectEl.value = selectedValue;
+        } else {
+            selectEl.value = '';
+        }
+
+        refreshCustomDropdown(selectEl);
+    }
+
+    function setStateNotApplicable() {
+        stateSelect.innerHTML = '';
+
+        const option = document.createElement('option');
+        option.value = 'N/A';
+        option.textContent = 'Not applicable';
+        option.selected = true;
+        stateSelect.appendChild(option);
+        stateSelect.value = 'N/A';
+        stateSelect.classList.add('checkout-location-select-na');
+        refreshCustomDropdown(stateSelect);
+    }
+
+    function syncCityOptions(resetCitySelection) {
+        const selectedCountry = countrySelect.value;
+        const countryInfo = locationData[selectedCountry];
+        if (!countryInfo) {
+            setSelectOptions(citySelect, [], cityPlaceholder, '');
+            citySelect.disabled = true;
+            return;
+        }
+
+        const previousCityValue = resetCitySelection ? '' : citySelect.value;
+
+        if (countryInfo.requires_state) {
+            const selectedState = stateSelect.value;
+            const stateCities = (countryInfo.states && countryInfo.states[selectedState]) || [];
+            setSelectOptions(citySelect, stateCities, cityPlaceholder, previousCityValue);
+            citySelect.disabled = !selectedState;
+            return;
+        }
+
+        const countryCities = countryInfo.cities || [];
+        setSelectOptions(citySelect, countryCities, cityPlaceholder, previousCityValue);
+        citySelect.disabled = false;
+    }
+
+    function syncLocationDropdowns(resetAllSelections) {
+        const selectedCountry = countrySelect.value;
+        const countryInfo = locationData[selectedCountry];
+
+        if (!countryInfo) {
+            setSelectOptions(stateSelect, [], statePlaceholder, '');
+            setSelectOptions(citySelect, [], cityPlaceholder, '');
+            stateSelect.disabled = true;
+            citySelect.disabled = true;
+            stateSelect.classList.remove('checkout-location-select-na');
+            refreshCustomDropdown(stateSelect);
+            refreshCustomDropdown(citySelect);
+            return;
+        }
+
+        const previousStateValue = resetAllSelections ? '' : stateSelect.value;
+        stateSelect.disabled = false;
+
+        if (countryInfo.requires_state) {
+            const availableStates = Object.keys(countryInfo.states || {});
+            setSelectOptions(stateSelect, availableStates, statePlaceholder, previousStateValue);
+            stateSelect.classList.remove('checkout-location-select-na');
+        } else {
+            setStateNotApplicable();
+        }
+
+        syncCityOptions(resetAllSelections);
+        refreshCustomDropdown(stateSelect);
+        refreshCustomDropdown(citySelect);
+    }
+
+    countrySelect.addEventListener('change', function() {
+        syncLocationDropdowns(true);
+    });
+
+    stateSelect.addEventListener('change', function() {
+        const selectedCountry = countrySelect.value;
+        const countryInfo = locationData[selectedCountry];
+        if (countryInfo && countryInfo.requires_state) {
+            syncCityOptions(true);
+        }
+        refreshCustomDropdown(stateSelect);
+        refreshCustomDropdown(citySelect);
+    });
+
+    syncLocationDropdowns(false);
+
+    document.addEventListener('click', function(event) {
+        customDropdowns.forEach(function(dropdown) {
+            if (!dropdown.wrapper.contains(event.target)) {
+                dropdown.wrapper.classList.remove('open');
+            }
+        });
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeAllDropdowns();
+        }
+    });
+});
+</script>
+{% endblock %}
