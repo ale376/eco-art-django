@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout
 from django.views import View
 from .forms import SignUpForm, ProductUploadForm, ProfileForm, ReviewForm, CheckoutForm, ContactForm, UserFeedbackForm, ShippingUpdateForm, ArtistApplicationForm, NewsletterSubscriptionForm
 from django.views.generic import TemplateView, ListView, CreateView, DetailView
-from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, ArtStyle
+from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, ArtStyle, Feedback
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 import datetime
@@ -542,40 +542,35 @@ class ContactView(View):
 class TeamView(TemplateView):
     template_name = 'market/team.html'
 
-# New views for additional forms
-
 class UserFeedbackView(View):
     def get(self, request):
         form = UserFeedbackForm()
         return render(request, 'market/user_feedback.html', {'form': form})
-    
+
     def post(self, request):
         form = UserFeedbackForm(request.POST)
         if form.is_valid():
-            # Process the feedback
-            feedback_data = {
-                'feedback_type': form.cleaned_data['feedback_type'],
-                'subject': form.cleaned_data['subject'],
-                'message': form.cleaned_data['message'],
-                'overall_rating': form.cleaned_data['overall_rating'],
-                'email': form.cleaned_data.get('email', ''),
-                'allow_contact': form.cleaned_data.get('allow_contact', False),
-                'user': request.user if request.user.is_authenticated else None,
-            }
-            
-            # In a real application, you would save this to a Feedback model
-            # For now, we'll just create a notification if user is logged in
+            feedback = Feedback.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                feedback_type=form.cleaned_data['feedback_type'],
+                subject=form.cleaned_data['subject'],
+                message=form.cleaned_data['message'],
+                overall_rating=form.cleaned_data['overall_rating'],
+                email=form.cleaned_data.get('email', ''),
+                allow_contact=form.cleaned_data.get('allow_contact', False),
+            )
+
             if request.user.is_authenticated:
                 create_notification(
                     user=request.user,
                     notification_type='system',
                     title='Feedback Submitted',
-                    message=f'Thank you for your {form.cleaned_data["feedback_type"]} feedback! We appreciate your input.'
+                    message='Thank you for your feedback! We appreciate your input.'
                 )
-            
-            messages.success(request, 'Thank you for your feedback! We will review it and get back to you if needed.')
+
+            messages.success(request, 'Thank you for your feedback! It has been submitted successfully.')
             return redirect('user_feedback')
-        
+
         return render(request, 'market/user_feedback.html', {'form': form})
 
 class ArtistApplicationView(LoginRequiredMixin, View):
