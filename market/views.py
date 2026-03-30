@@ -434,7 +434,13 @@ class MarkNotificationReadView(LoginRequiredMixin, View):
         notification = get_object_or_404(Notification, id=notification_id, user=request.user)
         notification.is_read = True
         notification.save()
-        return JsonResponse({'success': True})
+
+        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+
+        return JsonResponse({
+            'success': True,
+            'unread_count': unread_count
+        })
 
 class ProductDeleteView(LoginRequiredMixin, View):
     def post(self, request, pk):
@@ -712,13 +718,73 @@ class HomeView(View):
             'featured_products': featured_products,
         })
 
+# class MarketplaceView(ProductListView):
+#     template_name = 'market/marketplace.html'
+#
+#     def get_queryset(self):
+#         queryset = super().get_queryset().order_by('-created_at')
+#
+#         # Get search parameters
+#         q = self.request.GET.get('q', '').strip()
+#         category = self.request.GET.get('category', '').strip()
+#         location = self.request.GET.get('location', '').strip()
+#         art_style = self.request.GET.get('art_style', '').strip()
+#         min_price = self.request.GET.get('min_price', '').strip()
+#         max_price = self.request.GET.get('max_price', '').strip()
+#         sustainability_rating = self.request.GET.get('sustainability_rating', '').strip()
+#
+#         # Apply filters
+#         if q:
+#             queryset = queryset.filter(
+#                 Q(title__icontains=q) |
+#                 Q(description__icontains=q) |
+#                 Q(materials__icontains=q) |
+#                 Q(owner__username__icontains=q)
+#             )
+#         if category:
+#             queryset = queryset.filter(category=category)
+#         if location:
+#             queryset = queryset.filter(location__icontains=location)
+#         if art_style:
+#             queryset = queryset.filter(art_style=art_style)
+#         if min_price:
+#             try:
+#                 queryset = queryset.filter(price__gte=float(min_price))
+#             except ValueError:
+#                 pass
+#         if max_price:
+#             try:
+#                 queryset = queryset.filter(price__lte=float(max_price))
+#             except ValueError:
+#                 pass
+#         if sustainability_rating:
+#             try:
+#                 queryset = queryset.filter(sustainability_rating__gte=int(sustainability_rating))
+#             except ValueError:
+#                 pass
+#
+#         return queryset
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#
+#         # Add search parameters to context
+#         context['art_style'] = self.request.GET.get('art_style', '')
+#         context['min_price'] = self.request.GET.get('min_price', '')
+#         context['max_price'] = self.request.GET.get('max_price', '')
+#         context['sustainability_rating'] = self.request.GET.get('sustainability_rating', '')
+#
+#         # Add choices for dropdowns
+#         context['art_styles'] = Product.ART_STYLE_CHOICES
+#
+#         return context
+
 class MarketplaceView(ProductListView):
     template_name = 'market/marketplace.html'
-    
+
     def get_queryset(self):
-        queryset = super().get_queryset().order_by('-created_at')
-        
-        # Get search parameters
+        queryset = Product.objects.all().order_by('-created_at')
+
         q = self.request.GET.get('q', '').strip()
         category = self.request.GET.get('category', '').strip()
         location = self.request.GET.get('location', '').strip()
@@ -726,51 +792,54 @@ class MarketplaceView(ProductListView):
         min_price = self.request.GET.get('min_price', '').strip()
         max_price = self.request.GET.get('max_price', '').strip()
         sustainability_rating = self.request.GET.get('sustainability_rating', '').strip()
-        
-        # Apply filters
+
         if q:
+            normalized_q = q.replace(' ', '_')
             queryset = queryset.filter(
-                Q(title__icontains=q) | 
+                Q(title__icontains=q) |
                 Q(description__icontains=q) |
                 Q(materials__icontains=q) |
-                Q(owner__username__icontains=q)
-            )
+                Q(owner__username__icontains=q) |
+                Q(category__icontains=q) |
+                Q(category__icontains=normalized_q)
+            ).distinct()
+
         if category:
             queryset = queryset.filter(category=category)
+
         if location:
             queryset = queryset.filter(location__icontains=location)
+
         if art_style:
             queryset = queryset.filter(art_style=art_style)
+
         if min_price:
             try:
                 queryset = queryset.filter(price__gte=float(min_price))
             except ValueError:
                 pass
+
         if max_price:
             try:
                 queryset = queryset.filter(price__lte=float(max_price))
             except ValueError:
                 pass
+
         if sustainability_rating:
             try:
                 queryset = queryset.filter(sustainability_rating__gte=int(sustainability_rating))
             except ValueError:
                 pass
-                
+
         return queryset
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # Add search parameters to context
         context['art_style'] = self.request.GET.get('art_style', '')
         context['min_price'] = self.request.GET.get('min_price', '')
         context['max_price'] = self.request.GET.get('max_price', '')
         context['sustainability_rating'] = self.request.GET.get('sustainability_rating', '')
-        
-        # Add choices for dropdowns
         context['art_styles'] = Product.ART_STYLE_CHOICES
-        
         return context
 
 class CartView(View):
