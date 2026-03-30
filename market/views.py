@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout
 from django.views import View
 from .forms import SignUpForm, ProductUploadForm, ProfileForm, ReviewForm, CheckoutForm, ContactForm, UserFeedbackForm, ShippingUpdateForm, ArtistApplicationForm, NewsletterSubscriptionForm
 from django.views.generic import TemplateView, ListView, CreateView, DetailView
-from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, ArtStyle, Feedback
+from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, ArtStyle
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 import datetime
@@ -286,7 +286,6 @@ class CheckoutView(LoginRequiredMixin, View):
             'tax': tax,
             'total': total,
             'form': form,
-            'shipping_location_data': CheckoutForm.get_shipping_location_data(),
         }
         
         return render(request, 'market/checkout.html', context)
@@ -369,7 +368,6 @@ class CheckoutView(LoginRequiredMixin, View):
                 'tax': tax,
                 'total': total,
                 'form': form,
-                'shipping_location_data': CheckoutForm.get_shipping_location_data(),
             }
             
             return render(request, 'market/checkout.html', context)
@@ -542,35 +540,40 @@ class ContactView(View):
 class TeamView(TemplateView):
     template_name = 'market/team.html'
 
+# New views for additional forms
+
 class UserFeedbackView(View):
     def get(self, request):
         form = UserFeedbackForm()
         return render(request, 'market/user_feedback.html', {'form': form})
-
+    
     def post(self, request):
         form = UserFeedbackForm(request.POST)
         if form.is_valid():
-            feedback = Feedback.objects.create(
-                user=request.user if request.user.is_authenticated else None,
-                feedback_type=form.cleaned_data['feedback_type'],
-                subject=form.cleaned_data['subject'],
-                message=form.cleaned_data['message'],
-                overall_rating=form.cleaned_data['overall_rating'],
-                email=form.cleaned_data.get('email', ''),
-                allow_contact=form.cleaned_data.get('allow_contact', False),
-            )
-
+            # Process the feedback
+            feedback_data = {
+                'feedback_type': form.cleaned_data['feedback_type'],
+                'subject': form.cleaned_data['subject'],
+                'message': form.cleaned_data['message'],
+                'overall_rating': form.cleaned_data['overall_rating'],
+                'email': form.cleaned_data.get('email', ''),
+                'allow_contact': form.cleaned_data.get('allow_contact', False),
+                'user': request.user if request.user.is_authenticated else None,
+            }
+            
+            # In a real application, you would save this to a Feedback model
+            # For now, we'll just create a notification if user is logged in
             if request.user.is_authenticated:
                 create_notification(
                     user=request.user,
                     notification_type='system',
                     title='Feedback Submitted',
-                    message='Thank you for your feedback! We appreciate your input.'
+                    message=f'Thank you for your {form.cleaned_data["feedback_type"]} feedback! We appreciate your input.'
                 )
-
-            messages.success(request, 'Thank you for your feedback! It has been submitted successfully.')
+            
+            messages.success(request, 'Thank you for your feedback! We will review it and get back to you if needed.')
             return redirect('user_feedback')
-
+        
         return render(request, 'market/user_feedback.html', {'form': form})
 
 class ArtistApplicationView(LoginRequiredMixin, View):
@@ -644,11 +647,7 @@ class ShippingUpdateView(LoginRequiredMixin, View):
             'shipping_country': order.shipping_country,
         }
         form = ShippingUpdateForm(initial=initial_data)
-        return render(request, 'market/shipping_update.html', {
-            'form': form,
-            'order': order,
-            'shipping_location_data': CheckoutForm.get_shipping_location_data(),
-        })
+        return render(request, 'market/shipping_update.html', {'form': form, 'order': order})
     
     def post(self, request, order_id):
         order = get_object_or_404(Order, id=order_id, user=request.user)
@@ -678,11 +677,7 @@ class ShippingUpdateView(LoginRequiredMixin, View):
             messages.success(request, 'Shipping address updated successfully!')
             return redirect('order_detail', order_id=order_id)
         
-        return render(request, 'market/shipping_update.html', {
-            'form': form,
-            'order': order,
-            'shipping_location_data': CheckoutForm.get_shipping_location_data(),
-        })
+        return render(request, 'market/shipping_update.html', {'form': form, 'order': order})
 
 class SellerProfileView(LoginRequiredMixin, View):
     def get(self, request, user_id):

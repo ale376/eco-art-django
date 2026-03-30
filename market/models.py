@@ -306,38 +306,3 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
-
-
-class Feedback(models.Model):
-    FEEDBACK_TYPE_CHOICES = [
-        ('bug', 'Bug Report'),
-        ('feature', 'Feature Request'),
-        ('improvement', 'Improvement Suggestion'),
-        ('compliment', 'Compliment'),
-        ('complaint', 'Complaint'),
-        ('other', 'Other'),
-    ]
-
-    RATING_CHOICES = [
-        (5, '5 - Excellent'),
-        (4, '4 - Good'),
-        (3, '3 - Average'),
-        (2, '2 - Poor'),
-        (1, '1 - Very Poor'),
-    ]
-
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='feedbacks')
-    feedback_type = models.CharField(max_length=20, choices=FEEDBACK_TYPE_CHOICES)
-    subject = models.CharField(max_length=200)
-    message = models.TextField()
-    overall_rating = models.IntegerField(choices=RATING_CHOICES)
-    email = models.EmailField(blank=True, null=True)
-    allow_contact = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        name = self.user.username if self.user else (self.email or "Anonymous")
-        return f"{self.feedback_type} - {self.subject} by {name}"

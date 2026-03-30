@@ -94,20 +94,34 @@
     
     <!-- Add to Cart Button -->
     <div class="cart-action">
-      {% if in_cart %}
-        <button class="cart-btn in-cart" disabled>
-          <i class="fas fa-check"></i>
-          <span>In Cart</span>
-        </button>
-      {% else %}
-        <form method="post" action="{% url 'add_to_cart' product.pk %}" class="cart-form">
-          {% csrf_token %}
-          <button type="submit" class="cart-btn add-to-cart">
-            <i class="fas fa-shopping-bag"></i>
-            <span>Add to Cart</span>
+
+      {% if is_profile %}
+          <button class="cart-btn in-cart" disabled>
+              <i class="fas fa-user"></i>
+              <span>Your Product</span>
           </button>
-        </form>
+
+      {% elif user == product.owner %}
+          <button class="cart-btn in-cart" disabled>
+              <span>Your Product</span>
+          </button>
+
+      {% elif in_cart %}
+          <button class="cart-btn in-cart" disabled>
+              <i class="fas fa-check"></i>
+              <span>In Cart</span>
+          </button>
+
+      {% else %}
+          <form method="post" action="{% url 'add_to_cart' product.pk %}" class="cart-form">
+              {% csrf_token %}
+              <button type="submit" class="cart-btn add-to-cart">
+                  <i class="fas fa-shopping-bag"></i>
+                  <span>Add to Cart</span>
+              </button>
+          </form>
       {% endif %}
+
     </div>
   </div>
 </div>
