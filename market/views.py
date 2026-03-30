@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout
 from django.views import View
 from .forms import SignUpForm, ProductUploadForm, ProfileForm, ReviewForm, CheckoutForm, ContactForm, UserFeedbackForm, ShippingUpdateForm, ArtistApplicationForm, NewsletterSubscriptionForm
 from django.views.generic import TemplateView, ListView, CreateView, DetailView
-from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, ArtStyle
+from .models import ArtistApplication, ArtStyle, Category, ContactInquiry, ContactMessage, Feedback, Notification, Order, OrderItem, Product, Profile, Review, Wishlist
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 import datetime
@@ -516,25 +516,17 @@ class ContactView(View):
     def post(self, request):
         form = ContactForm(request.POST)
         if form.is_valid():
-            # Process the contact form
-            name = form.cleaned_data['name']
-            email = form.cleaned_data['email']
-            subject = form.cleaned_data['subject']
-            message = form.cleaned_data['message']
-            
-            # Send email (you can configure this based on your email settings)
-            try:
-                send_mail(
-                    subject=f"Contact Form: {subject}",
-                    message=f"From: {name} <{email}>\n\n{message}",
-                    from_email=email,
-                    recipient_list=['admin@ecoartmarket.com'],  # Replace with your admin email
-                    fail_silently=False,
-                )
-                messages.success(request, 'Thank you for your message! We will get back to you soon.')
-            except Exception as e:
-                messages.error(request, 'Sorry, there was an error sending your message. Please try again.')
-            
+            ContactInquiry.objects.create(
+                name=form.cleaned_data['name'],
+                email=form.cleaned_data['email'],
+                subject=form.cleaned_data['subject'],
+                message=form.cleaned_data['message'],
+            )
+
+            messages.success(
+                request,
+                "Your message has been submitted successfully. We will get back to you very soon."
+            )
             return redirect('contact')
         
         return render(request, 'market/contact.html', {'form': form})
@@ -552,19 +544,16 @@ class UserFeedbackView(View):
     def post(self, request):
         form = UserFeedbackForm(request.POST)
         if form.is_valid():
-            # Process the feedback
-            feedback_data = {
-                'feedback_type': form.cleaned_data['feedback_type'],
-                'subject': form.cleaned_data['subject'],
-                'message': form.cleaned_data['message'],
-                'overall_rating': form.cleaned_data['overall_rating'],
-                'email': form.cleaned_data.get('email', ''),
-                'allow_contact': form.cleaned_data.get('allow_contact', False),
-                'user': request.user if request.user.is_authenticated else None,
-            }
-            
-            # In a real application, you would save this to a Feedback model
-            # For now, we'll just create a notification if user is logged in
+            Feedback.objects.create(
+                feedback_type=form.cleaned_data['feedback_type'],
+                subject=form.cleaned_data['subject'],
+                message=form.cleaned_data['message'],
+                overall_rating=form.cleaned_data['overall_rating'],
+                email=form.cleaned_data.get('email', ''),
+                allow_contact=form.cleaned_data.get('allow_contact', False),
+                user=request.user if request.user.is_authenticated else None,
+            )
+
             if request.user.is_authenticated:
                 create_notification(
                     user=request.user,
@@ -586,19 +575,16 @@ class ArtistApplicationView(LoginRequiredMixin, View):
     def post(self, request):
         form = ArtistApplicationForm(request.POST)
         if form.is_valid():
-            # Process artist application
-            application_data = {
-                'user': request.user,
-                'full_name': form.cleaned_data['full_name'],
-                'artist_statement': form.cleaned_data['artist_statement'],
-                'portfolio_url': form.cleaned_data.get('portfolio_url', ''),
-                'years_of_experience': form.cleaned_data['years_of_experience'],
-                'specialization': form.cleaned_data['specialization'],
-                'certifications': form.cleaned_data.get('certifications', ''),
-            }
-            
-            # You could save this to a database model or send email
-            # For now, we'll just create a notification
+            ArtistApplication.objects.create(
+                user=request.user,
+                full_name=form.cleaned_data['full_name'],
+                artist_statement=form.cleaned_data['artist_statement'],
+                portfolio_url=form.cleaned_data.get('portfolio_url', ''),
+                years_of_experience=form.cleaned_data['years_of_experience'],
+                specialization=form.cleaned_data['specialization'],
+                certifications=form.cleaned_data.get('certifications', ''),
+            )
+
             create_notification(
                 user=request.user,
                 notification_type='system',
