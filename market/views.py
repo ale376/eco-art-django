@@ -286,6 +286,7 @@ class CheckoutView(LoginRequiredMixin, View):
             'tax': tax,
             'total': total,
             'form': form,
+            'shipping_location_data': CheckoutForm.get_shipping_location_data(),
         }
         
         return render(request, 'market/checkout.html', context)
@@ -368,6 +369,7 @@ class CheckoutView(LoginRequiredMixin, View):
                 'tax': tax,
                 'total': total,
                 'form': form,
+                'shipping_location_data': CheckoutForm.get_shipping_location_data(),
             }
             
             return render(request, 'market/checkout.html', context)
@@ -647,7 +649,11 @@ class ShippingUpdateView(LoginRequiredMixin, View):
             'shipping_country': order.shipping_country,
         }
         form = ShippingUpdateForm(initial=initial_data)
-        return render(request, 'market/shipping_update.html', {'form': form, 'order': order})
+        return render(request, 'market/shipping_update.html', {
+            'form': form,
+            'order': order,
+            'shipping_location_data': CheckoutForm.get_shipping_location_data(),
+        })
     
     def post(self, request, order_id):
         order = get_object_or_404(Order, id=order_id, user=request.user)
@@ -677,7 +683,11 @@ class ShippingUpdateView(LoginRequiredMixin, View):
             messages.success(request, 'Shipping address updated successfully!')
             return redirect('order_detail', order_id=order_id)
         
-        return render(request, 'market/shipping_update.html', {'form': form, 'order': order})
+        return render(request, 'market/shipping_update.html', {
+            'form': form,
+            'order': order,
+            'shipping_location_data': CheckoutForm.get_shipping_location_data(),
+        })
 
 class SellerProfileView(LoginRequiredMixin, View):
     def get(self, request, user_id):
