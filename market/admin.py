@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, ArtStyle
+from .models import ArtistApplication, ArtStyle, Category, ContactInquiry, ContactMessage, Notification, Order, OrderItem, Product, Profile, Review, Wishlist
 
 # Register your models here.
 
@@ -57,6 +57,13 @@ class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ['sender', 'product', 'created_at']
     list_filter = ['created_at']
     search_fields = ['sender__username', 'product__title', 'message']
+
+@admin.register(ContactInquiry)
+class ContactInquiryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'email', 'subject', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['name', 'email', 'subject', 'message']
+    readonly_fields = ['created_at']
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
@@ -132,3 +139,18 @@ class WishlistAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'product__title']
     date_hierarchy = 'added_at'
     readonly_fields = ['added_at']
+
+@admin.register(ArtistApplication)
+class ArtistApplicationAdmin(admin.ModelAdmin):
+    list_display = ['full_name', 'user', 'is_approved', 'created_at']
+    list_filter = ['is_approved', 'created_at']
+    search_fields = ['full_name', 'user__username', 'specialization']
+    readonly_fields = ['created_at']
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+        if obj.is_approved:
+            profile = obj.user.profile
+            profile.is_artist = True
+            profile.save()

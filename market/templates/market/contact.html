@@ -148,6 +148,64 @@
   box-shadow: 0 15px 30px rgba(39, 174, 96, 0.4);
 }
 
+.success-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 2000;
+}
+
+.success-popup-card {
+  width: min(440px, 100%);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(39, 174, 96, 0.15);
+}
+
+.success-popup-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  box-shadow: 0 14px 30px rgba(39, 174, 96, 0.28);
+}
+
+.success-popup-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+.success-popup-text {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.success-popup-btn {
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: #ffffff;
+  padding: 0.9rem 1.6rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .contact-info-card {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
@@ -263,6 +321,24 @@
 </style>
 
 <div class="contact-hero">
+  {% if messages %}
+    {% for message in messages %}
+      {% if message.tags == 'success' %}
+        <div class="success-popup" id="contactSuccessPopup">
+          <div class="success-popup-card">
+            <div class="success-popup-icon">
+              <i class="fas fa-check"></i>
+            </div>
+            <h2 class="success-popup-title">Message Received</h2>
+            <p class="success-popup-text">{{ message }}</p>
+            <button type="button" class="success-popup-btn" onclick="document.getElementById('contactSuccessPopup').remove();">
+              Close
+            </button>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
   <div class="hero-pattern"></div>
   <div class="contact-container">
     <!-- Header -->
@@ -373,4 +449,14 @@
     </div>
   </div>
 </div>
+<script>
+  const contactSuccessPopup = document.getElementById('contactSuccessPopup');
+  if (contactSuccessPopup) {
+    setTimeout(() => {
+      if (document.body.contains(contactSuccessPopup)) {
+        contactSuccessPopup.remove();
+      }
+    }, 5000);
+  }
+</script>
 {% endblock %} 
