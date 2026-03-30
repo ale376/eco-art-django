@@ -1,6 +1,9 @@
 from django.contrib import admin
-from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, ArtStyle
+from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, \
+    ArtStyle
 from .models import ArtistApplication
+
+
 # Register your models here.
 
 @admin.register(Category)
@@ -10,7 +13,7 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ['name', 'display_name', 'description']
     date_hierarchy = 'created_at'
     readonly_fields = ['created_at']
-    
+
     fieldsets = (
         ('Basic Information', {
             'fields': ('name', 'display_name', 'description')
@@ -24,6 +27,7 @@ class CategoryAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(ArtStyle)
 class ArtStyleAdmin(admin.ModelAdmin):
     list_display = ['display_name', 'name', 'is_active', 'created_at']
@@ -31,7 +35,7 @@ class ArtStyleAdmin(admin.ModelAdmin):
     search_fields = ['name', 'display_name', 'description']
     date_hierarchy = 'created_at'
     readonly_fields = ['created_at']
-    
+
     fieldsets = (
         ('Basic Information', {
             'fields': ('name', 'display_name', 'description')
@@ -45,6 +49,7 @@ class ArtStyleAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['title', 'owner', 'category', 'price', 'location', 'created_at']
@@ -52,22 +57,26 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ['title', 'description', 'owner__username']
     date_hierarchy = 'created_at'
 
+
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ['sender', 'product', 'created_at']
     list_filter = ['created_at']
     search_fields = ['sender__username', 'product__title', 'message']
 
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'location', 'phone']
     search_fields = ['user__username', 'user__email', 'location']
+
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ['product', 'user', 'rating', 'created_at']
     list_filter = ['rating', 'created_at']
     search_fields = ['product__title', 'user__username', 'comment']
+
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
@@ -76,13 +85,14 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ['order_number', 'user__username', 'shipping_address']
     date_hierarchy = 'created_at'
     readonly_fields = ['order_number', 'created_at', 'updated_at']
-    
+
     fieldsets = (
         ('Order Information', {
             'fields': ('order_number', 'user', 'status', 'payment_status', 'payment_method')
         }),
         ('Shipping Information', {
-            'fields': ('shipping_address', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_country', 'shipping_phone')
+            'fields': ('shipping_address', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_country',
+                       'shipping_phone')
         }),
         ('Financial Information', {
             'fields': ('subtotal', 'shipping_cost', 'tax', 'total')
@@ -97,11 +107,13 @@ class OrderAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['order', 'product', 'quantity', 'price', 'total_price']
     list_filter = ['order__status']
     search_fields = ['order__order_number', 'product__title']
+
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
@@ -110,7 +122,7 @@ class NotificationAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'title', 'message']
     date_hierarchy = 'created_at'
     readonly_fields = ['created_at']
-    
+
     fieldsets = (
         ('Notification Details', {
             'fields': ('user', 'notification_type', 'title', 'message', 'is_read')
@@ -124,6 +136,7 @@ class NotificationAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
 
 @admin.register(Wishlist)
 class WishlistAdmin(admin.ModelAdmin):
