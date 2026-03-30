@@ -481,9 +481,17 @@
                 <ul class="navbar-nav user-nav">
                     {% if user.is_authenticated %}
                         <li class="nav-item nav-action-item">
-                            <a class="nav-link action-link {% if request.path == '/upload/' %}active{% endif %}" href="{% url 'upload' %}">
+                            <a class="nav-link action-link {% if request.path == '/upload/' %}active{% endif %}"
+                               href="{% if user.profile.is_artist %}{% url 'upload' %}{% else %}{% url 'artist_application' %}{% endif %}">
+
                                 <i class="fas fa-cloud-upload-alt nav-icon"></i>
-                                <span>Upload</span>
+
+                                {% if user.profile.is_artist %}
+                                    <span>Upload</span>
+                                {% else %}
+                                    <span>Artist</span>
+                                {% endif %}
+
                             </a>
                         </li>
                         <li class="nav-item nav-action-item">

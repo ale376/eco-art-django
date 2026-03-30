@@ -3,7 +3,8 @@ from django.contrib.auth import login, logout
 from django.views import View
 from .forms import SignUpForm, ProductUploadForm, ProfileForm, ReviewForm, CheckoutForm, ContactForm, UserFeedbackForm, ShippingUpdateForm, ArtistApplicationForm, NewsletterSubscriptionForm
 from django.views.generic import TemplateView, ListView, CreateView, DetailView
-from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, ArtStyle
+from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, \
+    ArtStyle, ArtistApplication
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 import datetime
@@ -476,6 +477,17 @@ class ProfileView(LoginRequiredMixin, View):
         user = request.user
         profile, created = Profile.objects.get_or_create(user=user)
         products = user.products.all()
+        # Artist stats
+        total_products = products.count()
+
+        # Get all order items where this user is the seller
+        from django.db.models import Sum
+
+        sold_items = OrderItem.objects.filter(product__owner=user)
+
+        total_sales = sold_items.count()
+
+        total_revenue = sold_items.aggregate(total=Sum('price'))['total'] or 0
         edit_mode = request.GET.get('edit') == '1'
         form = ProfileForm(instance=profile) if edit_mode else None
         return render(request, 'market/profile.html', {
@@ -484,6 +496,9 @@ class ProfileView(LoginRequiredMixin, View):
             'products': products,
             'edit_mode': edit_mode,
             'form': form,
+            'total_products': total_products,
+            'total_sales': total_sales,
+            'total_revenue': total_revenue,
         })
 
     def post(self, request):
@@ -577,38 +592,39 @@ class UserFeedbackView(View):
         return render(request, 'market/user_feedback.html', {'form': form})
 
 class ArtistApplicationView(LoginRequiredMixin, View):
+
     def get(self, request):
         form = ArtistApplicationForm()
         return render(request, 'market/artist_application.html', {'form': form})
-    
+
+
     def post(self, request):
         form = ArtistApplicationForm(request.POST)
+
         if form.is_valid():
-            # Process artist application
-            application_data = {
-                'user': request.user,
-                'full_name': form.cleaned_data['full_name'],
-                'artist_statement': form.cleaned_data['artist_statement'],
-                'portfolio_url': form.cleaned_data.get('portfolio_url', ''),
-                'years_of_experience': form.cleaned_data['years_of_experience'],
-                'specialization': form.cleaned_data['specialization'],
-                'certifications': form.cleaned_data.get('certifications', ''),
-            }
-            
-            # You could save this to a database model or send email
-            # For now, we'll just create a notification
+            #SAVE TO DATABASE
+            ArtistApplication.objects.create(
+                user=request.user,
+                full_name=form.cleaned_data['full_name'],
+                artist_statement=form.cleaned_data['artist_statement'],
+                portfolio_url=form.cleaned_data.get('portfolio_url', ''),
+                years_of_experience=form.cleaned_data['years_of_experience'],
+                specialization=form.cleaned_data['specialization'],
+                certifications=form.cleaned_data.get('certifications', ''),
+            )
+
+            #CREATE NOTIFICATION
             create_notification(
                 user=request.user,
                 notification_type='system',
                 title='Artist Application Submitted',
-                message='Your artist application has been submitted and is under review. We will contact you within 5-7 business days.'
+                message='Your artist application has been submitted and is under review.'
             )
-            
-            messages.success(request, 'Your artist application has been submitted successfully! We will review it and get back to you soon.')
-            return redirect('profile')
-        
-        return render(request, 'market/artist_application.html', {'form': form})
 
+            messages.success(request, 'Application submitted successfully!')
+            return redirect('profile')
+
+        return render(request, 'market/artist_application.html', {'form': form})
 class NewsletterSubscriptionView(View):
     def post(self, request):
         form = NewsletterSubscriptionForm(request.POST)

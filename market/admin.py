@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, ArtStyle
-
+from .models import ArtistApplication
 # Register your models here.
 
 @admin.register(Category)
@@ -132,3 +132,16 @@ class WishlistAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'product__title']
     date_hierarchy = 'added_at'
     readonly_fields = ['added_at']
+
+
+@admin.register(ArtistApplication)
+class ArtistApplicationAdmin(admin.ModelAdmin):
+    list_display = ['full_name', 'user', 'is_approved', 'created_at']
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+        if obj.is_approved:
+            profile = obj.user.profile
+            profile.is_artist = True
+            profile.save()
