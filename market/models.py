@@ -308,7 +308,6 @@ class ContactMessage(models.Model):
     def __str__(self):
         return f"Message from {self.sender.username} about {self.product.title}"
 
-<<<<<<< HEAD
 class ContactInquiry(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -356,25 +355,6 @@ class Feedback(models.Model):
     def __str__(self):
         return f"{self.get_feedback_type_display()}: {self.subject}"
 
-class ArtistApplication(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    full_name = models.CharField(max_length=200)
-    artist_statement = models.TextField()
-    portfolio_url = models.URLField(blank=True, null=True)
-    years_of_experience = models.IntegerField()
-    specialization = models.CharField(max_length=100)
-    certifications = models.TextField(blank=True, null=True)
-    is_approved = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return self.full_name
-=======
->>>>>>> origin/main
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField(blank=True, null=True)
@@ -387,27 +367,9 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
-
-# for artists
-# class ArtistApplication(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     full_name = models.CharField(max_length=200)
-#     artist_statement = models.TextField()
-#     portfolio_url = models.URLField(blank=True, null=True)
-#     years_of_experience = models.IntegerField()
-#     specialization = models.CharField(max_length=100)
-#     certifications = models.TextField(blank=True, null=True)
-#
-#     is_approved = models.BooleanField(default=False)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#
-#     def __str__(self):
-#         return self.full_name
-
 class ArtistApplication(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=200)
-    email = models.EmailField()
     artist_statement = models.TextField()
     portfolio_url = models.URLField(blank=True, null=True)
     years_of_experience = models.IntegerField()
@@ -416,6 +378,9 @@ class ArtistApplication(models.Model):
 
     is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.full_name
