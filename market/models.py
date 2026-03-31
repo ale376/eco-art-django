@@ -308,6 +308,72 @@ class ContactMessage(models.Model):
     def __str__(self):
         return f"Message from {self.sender.username} about {self.product.title}"
 
+<<<<<<< HEAD
+class ContactInquiry(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = "Contact inquiries"
+
+    def __str__(self):
+        return f"{self.subject} from {self.name}"
+
+class Feedback(models.Model):
+    FEEDBACK_TYPE_CHOICES = [
+        ('bug', 'Bug Report'),
+        ('feature', 'Feature Request'),
+        ('improvement', 'Improvement Suggestion'),
+        ('compliment', 'Compliment'),
+        ('complaint', 'Complaint'),
+        ('other', 'Other'),
+    ]
+
+    OVERALL_RATING_CHOICES = [
+        (5, '5 - Excellent'),
+        (4, '4 - Good'),
+        (3, '3 - Average'),
+        (2, '2 - Poor'),
+        (1, '1 - Very Poor'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='feedbacks')
+    feedback_type = models.CharField(max_length=20, choices=FEEDBACK_TYPE_CHOICES)
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    overall_rating = models.IntegerField(choices=OVERALL_RATING_CHOICES)
+    email = models.EmailField(blank=True, null=True)
+    allow_contact = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.get_feedback_type_display()}: {self.subject}"
+
+class ArtistApplication(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=200)
+    artist_statement = models.TextField()
+    portfolio_url = models.URLField(blank=True, null=True)
+    years_of_experience = models.IntegerField()
+    specialization = models.CharField(max_length=100)
+    certifications = models.TextField(blank=True, null=True)
+    is_approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.full_name
+=======
+>>>>>>> origin/main
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
