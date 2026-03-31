@@ -149,8 +149,9 @@ class WishlistAdmin(admin.ModelAdmin):
 
 @admin.register(ArtistApplication)
 class ArtistApplicationAdmin(admin.ModelAdmin):
-    list_display = ['full_name', 'user', 'is_approved', 'created_at']
-
+    list_display = ('full_name', 'email', 'specialization', 'years_of_experience', 'is_approved', 'created_at')
+    search_fields = ('full_name', 'email', 'specialization')
+    list_filter = ('is_approved', 'specialization', 'created_at')
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
 
