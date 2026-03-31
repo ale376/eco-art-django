@@ -516,7 +516,7 @@
             <div class="row">
                 <div class="col-lg-4 mb-3">
                     <label class="form-label fw-semibold">Art Category</label>
-                    <select name="category" class="form-select modern-select" onchange="document.getElementById('filterForm').submit()">
+                    <select name="category" class="form-select modern-select">
                         <option value="">🎨 All Art Types</option>
                         {% for value, label in categories %}
                             <option value="{{ value }}" {% if value == category %}selected{% endif %}>{{ label }}</option>
@@ -525,7 +525,7 @@
                 </div>
                 <div class="col-lg-4 mb-3">
                     <label class="form-label fw-semibold">Art Style</label>
-                    <select name="art_style" class="form-select modern-select" onchange="document.getElementById('filterForm').submit()">
+                    <select name="art_style" class="form-select modern-select" >
                         <option value="">✨ All Styles</option>
                         {% for value, label in art_styles %}
                             <option value="{{ value }}" {% if value == art_style %}selected{% endif %}>{{ label }}</option>
@@ -534,7 +534,7 @@
                 </div>
                 <div class="col-lg-4 mb-3">
                     <label class="form-label fw-semibold">Artist Location</label>
-                    <select name="location" class="form-select modern-select" onchange="document.getElementById('filterForm').submit()">
+                    <select name="location" class="form-select modern-select">
                         <option value="">📍 All Locations</option>
                         {% for loc in locations %}
                             <option value="{{ loc }}" {% if loc == location %}selected{% endif %}>{{ loc }}</option>
@@ -547,15 +547,15 @@
             <div class="row">
                 <div class="col-lg-3 mb-3">
                     <label class="form-label fw-semibold">Min Price ($)</label>
-                    <input type="number" name="min_price" value="{{ min_price }}" class="form-control modern-select" placeholder="0" min="0" step="0.01" onchange="document.getElementById('filterForm').submit()">
+                    <input type="number" name="min_price" value="{{ min_price }}" class="form-control modern-select" placeholder="0" min="0" step="0.01">
                 </div>
                 <div class="col-lg-3 mb-3">
                     <label class="form-label fw-semibold">Max Price ($)</label>
-                    <input type="number" name="max_price" value="{{ max_price }}" class="form-control modern-select" placeholder="1000" min="0" step="0.01" onchange="document.getElementById('filterForm').submit()">
+                    <input type="number" name="max_price" value="{{ max_price }}" class="form-control modern-select" placeholder="1000" min="0" step="0.01">
                 </div>
                 <div class="col-lg-3 mb-3">
                     <label class="form-label fw-semibold">Sustainability Rating</label>
-                    <select name="sustainability_rating" class="form-select modern-select" onchange="document.getElementById('filterForm').submit()">
+                    <select name="sustainability_rating" class="form-select modern-select">
                         <option value="">🌱 Any Rating</option>
                         <option value="5" {% if sustainability_rating == '5' %}selected{% endif %}>5 Stars Only</option>
                         <option value="4" {% if sustainability_rating == '4' %}selected{% endif %}>4+ Stars</option>
