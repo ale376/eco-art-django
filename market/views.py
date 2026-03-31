@@ -20,6 +20,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+from django.db import DatabaseError
 
 # Create your views here.
 
@@ -582,12 +583,19 @@ class ContactView(View):
     def post(self, request):
         form = ContactForm(request.POST)
         if form.is_valid():
-            ContactInquiry.objects.create(
-                name=form.cleaned_data['name'],
-                email=form.cleaned_data['email'],
-                subject=form.cleaned_data['subject'],
-                message=form.cleaned_data['message'],
-            )
+            try:
+                ContactInquiry.objects.create(
+                    name=form.cleaned_data['name'],
+                    email=form.cleaned_data['email'],
+                    subject=form.cleaned_data['subject'],
+                    message=form.cleaned_data['message'],
+                )
+            except DatabaseError:
+                messages.error(
+                    request,
+                    "We could not submit your message right now. Please try again in a moment."
+                )
+                return render(request, 'market/contact.html', {'form': form})
 
             messages.success(
                 request,

@@ -206,6 +206,19 @@
   cursor: pointer;
 }
 
+.error-popup-card {
+  border: 1px solid rgba(220, 38, 38, 0.15);
+}
+
+.error-popup-icon {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  box-shadow: 0 14px 30px rgba(220, 38, 38, 0.25);
+}
+
+.error-popup-btn {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
 .contact-info-card {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
@@ -336,6 +349,19 @@
             </button>
           </div>
         </div>
+      {% elif message.tags == 'error' %}
+        <div class="success-popup" id="contactErrorPopup">
+          <div class="success-popup-card error-popup-card">
+            <div class="success-popup-icon error-popup-icon">
+              <i class="fas fa-circle-exclamation"></i>
+            </div>
+            <h2 class="success-popup-title">Submission Failed</h2>
+            <p class="success-popup-text">{{ message }}</p>
+            <button type="button" class="success-popup-btn error-popup-btn" onclick="document.getElementById('contactErrorPopup').remove();">
+              Close
+            </button>
+          </div>
+        </div>
       {% endif %}
     {% endfor %}
   {% endif %}
@@ -455,6 +481,15 @@
     setTimeout(() => {
       if (document.body.contains(contactSuccessPopup)) {
         contactSuccessPopup.remove();
+      }
+    }, 5000);
+  }
+
+  const contactErrorPopup = document.getElementById('contactErrorPopup');
+  if (contactErrorPopup) {
+    setTimeout(() => {
+      if (document.body.contains(contactErrorPopup)) {
+        contactErrorPopup.remove();
       }
     }, 5000);
   }
