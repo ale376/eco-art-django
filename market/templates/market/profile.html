@@ -291,7 +291,13 @@
   color: white;
   transform: translateY(-2px);
 }
-
+.product-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: contain; /* THIS FIXES YOUR ISSUE */
+    background-color: #f8f9fa;
+    padding: 10px;
+}
 .products-section {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -299,6 +305,7 @@
   padding: 3rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.3);
+    margin: 2rem;
 }
 
 .products-header {
@@ -307,6 +314,7 @@
   justify-content: between;
   margin-bottom: 2rem;
 }
+
 
 .products-title {
   font-size: 2rem;
@@ -377,7 +385,7 @@
     <!-- Messages -->
     {% if messages %}
       {% for message in messages %}
-        <div class="alert-modern alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-modern alert-dismissible fade show" role="alert">
           {{ message }}
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -477,10 +485,17 @@
                 <i class="fas fa-key"></i>
                 Change Password
               </a>
-              <a href="{% url 'artist_application' %}" class="edit-btn" style="background: linear-gradient(135deg, #e67e22, #f39c12);">
-                <i class="fas fa-certificate"></i>
-                Apply as Artist
-              </a>
+              {% if not user.profile.is_artist %}
+                <a href="{% url 'artist_application' %}" class="edit-btn" style="background: linear-gradient(135deg, #e67e22, #f39c12);">
+                    <i class="fas fa-certificate"></i>
+                    Apply as Artist
+                </a>
+                {% else %}
+                    <a class="edit-btn" style="background: linear-gradient(1135deg, #e67e22, #f39c12); cursor: default;">
+                        <i class="fas fa-check-circle"></i>
+                        Artist Account
+                    </a>
+                {% endif %}
             {% endif %}
           </div>
         </div>
@@ -540,7 +555,58 @@
       </div>
       {% endif %}
     </div>
-    
+      <!-- END of profile-header -->
+
+        {% if profile.is_artist %}
+        <div class="products-section">
+          <h2 class="products-title">
+            <i class="fas fa-chart-line"></i>
+            Artist Dashboard
+          </h2>
+
+          <div class="profile-meta">
+
+            <div class="meta-item">
+              <div class="meta-icon">
+                <i class="fas fa-palette"></i>
+              </div>
+              <div class="meta-content">
+                <div class="meta-label">Total Artworks</div>
+                <div class="meta-value">{{ total_products }}</div>
+              </div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-icon">
+                <i class="fas fa-shopping-cart"></i>
+              </div>
+              <div class="meta-content">
+                <div class="meta-label">Total Sales</div>
+                <div class="meta-value">{{ total_sales }}</div>
+              </div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-icon">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <div class="meta-content">
+                <div class="meta-label">Revenue</div>
+                <div class="meta-value">${{ total_revenue }}</div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <a href="{% url 'upload' %}" class="edit-btn">
+              <i class="fas fa-plus"></i>
+              Upload Artwork
+            </a>
+          </div>
+        </div>
+        {% endif %}
+
     <!-- Products Section -->
     <div class="products-section">
       <div class="products-header">
@@ -553,7 +619,7 @@
       {% if products %}
         <div class="products-grid">
           {% for product in products %}
-            {% include 'market/_product_card.html' with product=product in_cart=product.in_cart %}
+            {% include 'market/_product_card.html' with product=product in_cart=product.in_cart is_profile=True %}
           {% endfor %}
         </div>
       {% else %}
@@ -629,9 +695,16 @@
   .form-group input[type="file"] {
     padding: 8px;
     border: 2px dashed #e9ecef;
+    border: 2px dashed #e9ecef;
     background: #f8f9fa;
   }
-  
+  .products-section .profile-meta {
+  align-items: stretch;
+    }
+
+    .products-section .meta-item {
+      height: 100%;
+    }
   .form-group input[type="file"]:hover {
     border-color: #27ae60;
     background: rgba(39, 174, 96, 0.05);

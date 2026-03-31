@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 
+
 # Create your models here.
 
 # Additional models to meet 5-member team requirements (10 models total)
@@ -15,13 +16,14 @@ class Category(models.Model):
     icon = models.CharField(max_length=50, help_text="FontAwesome icon class", blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         verbose_name_plural = "Categories"
         ordering = ['display_name']
-    
+
     def __str__(self):
         return self.display_name
+
 
 class ArtStyle(models.Model):
     """Art style model for better categorization"""
@@ -30,12 +32,13 @@ class ArtStyle(models.Model):
     description = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         ordering = ['display_name']
-    
+
     def __str__(self):
         return self.display_name
+
 
 class Product(models.Model):
     CATEGORY_CHOICES = [
@@ -49,7 +52,7 @@ class Product(models.Model):
         ('showcase_educational', '📸 Showcase & Educational'),
         ('other', '✨ Other'),
     ]
-    
+
     ART_STYLE_CHOICES = [
         ('abstract', 'Abstract'),
         ('realistic', 'Realistic'),
@@ -65,7 +68,7 @@ class Product(models.Model):
         ('functional', 'Functional Art'),
         ('other', 'Other'),
     ]
-    
+
     title = models.CharField(max_length=100)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -79,14 +82,14 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     artist_statement = models.TextField(help_text="Tell the story behind your artwork", blank=True, null=True)
     sustainability_rating = models.IntegerField(
-        choices=[(i, i) for i in range(1, 6)], 
+        choices=[(i, i) for i in range(1, 6)],
         help_text="How eco-friendly is this piece? (1-5)",
         default=3
     )
 
     def __str__(self):
         return self.title
-    
+
     @property
     def average_rating(self):
         """Calculate average rating from reviews"""
@@ -94,23 +97,25 @@ class Product(models.Model):
         if reviews:
             return sum(review.rating for review in reviews) / len(reviews)
         return 0
-    
+
     @property
     def review_count(self):
         """Get total number of reviews"""
         return self.reviews.count()
 
+
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='wishlisted_by')
     added_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         unique_together = ['user', 'product']  # One wishlist entry per user per product
         ordering = ['-added_at']
-    
+
     def __str__(self):
         return f"{self.user.username} wishlisted {self.product.title}"
+
 
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
@@ -127,23 +132,26 @@ class Notification(models.Model):
         ('welcome', 'Welcome'),
         ('system', 'System'),
     ]
-    
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES)
     title = models.CharField(max_length=200)
     message = models.TextField()
-    related_product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
-    related_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='sent_notifications')
-    related_order = models.ForeignKey('Order', on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
+    related_product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True,
+                                        related_name='notifications')
+    related_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,
+                                     related_name='sent_notifications')
+    related_order = models.ForeignKey('Order', on_delete=models.CASCADE, null=True, blank=True,
+                                      related_name='notifications')
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         ordering = ['-created_at']
-    
+
     def __str__(self):
         return f"{self.notification_type} for {self.user.username}"
-    
+
     @property
     def icon_class(self):
         """Return appropriate FontAwesome icon class based on notification type"""
@@ -162,7 +170,7 @@ class Notification(models.Model):
             'system': 'fas fa-bell',
         }
         return icon_map.get(self.notification_type, 'fas fa-bell')
-    
+
     @property
     def color_class(self):
         """Return appropriate Bootstrap color class based on notification type"""
@@ -182,6 +190,7 @@ class Notification(models.Model):
         }
         return color_map.get(self.notification_type, 'text-primary')
 
+
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
@@ -191,13 +200,14 @@ class Review(models.Model):
     )
     comment = models.TextField(help_text="Share your thoughts about this artwork")
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         unique_together = ['product', 'user']  # One review per user per product
         ordering = ['-created_at']
-    
+
     def __str__(self):
         return f"{self.user.username}'s review of {self.product.title}"
+
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -207,27 +217,27 @@ class Order(models.Model):
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
     ]
-    
+
     PAYMENT_STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('paid', 'Paid'),
         ('failed', 'Failed'),
         ('refunded', 'Refunded'),
     ]
-    
+
     PAYMENT_METHOD_CHOICES = [
         ('credit_card', 'Credit Card'),
         ('paypal', 'PayPal'),
         ('bank_transfer', 'Bank Transfer'),
         ('cash_on_delivery', 'Cash on Delivery'),
     ]
-    
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     order_number = models.CharField(max_length=20, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
-    
+
     # Shipping Information
     shipping_address = models.TextField()
     shipping_city = models.CharField(max_length=100)
@@ -235,28 +245,28 @@ class Order(models.Model):
     shipping_zip_code = models.CharField(max_length=20)
     shipping_country = models.CharField(max_length=100)
     shipping_phone = models.CharField(max_length=20)
-    
+
     # Order Totals
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     tax = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     total = models.DecimalField(max_digits=10, decimal_places=2)
-    
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     paid_at = models.DateTimeField(null=True, blank=True)
     shipped_at = models.DateTimeField(null=True, blank=True)
-    
+
     # Notes
     notes = models.TextField(blank=True, null=True)
-    
+
     class Meta:
         ordering = ['-created_at']
-    
+
     def __str__(self):
         return f"Order {self.order_number} by {self.user.username}"
-    
+
     def save(self, *args, **kwargs):
         if not self.order_number:
             # Generate unique order number
@@ -268,24 +278,26 @@ class Order(models.Model):
                     self.order_number = order_num
                     break
         super().save(*args, **kwargs)
-    
+
     @property
     def item_count(self):
         """Get total number of items in order"""
         return sum(item.quantity for item in self.items.all())
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)  # Price at time of order
-    
+
     def __str__(self):
         return f"{self.quantity}x {self.product.title} in Order {self.order.order_number}"
-    
+
     @property
     def total_price(self):
         return self.price * self.quantity
+
 
 class ContactMessage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='messages')
@@ -296,6 +308,7 @@ class ContactMessage(models.Model):
     def __str__(self):
         return f"Message from {self.sender.username} about {self.product.title}"
 
+<<<<<<< HEAD
 class ContactInquiry(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -359,6 +372,8 @@ class ArtistApplication(models.Model):
 
     def __str__(self):
         return self.full_name
+=======
+>>>>>>> origin/main
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
@@ -371,3 +386,36 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+
+
+# for artists
+# class ArtistApplication(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     full_name = models.CharField(max_length=200)
+#     artist_statement = models.TextField()
+#     portfolio_url = models.URLField(blank=True, null=True)
+#     years_of_experience = models.IntegerField()
+#     specialization = models.CharField(max_length=100)
+#     certifications = models.TextField(blank=True, null=True)
+#
+#     is_approved = models.BooleanField(default=False)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#
+#     def __str__(self):
+#         return self.full_name
+
+class ArtistApplication(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=200)
+    email = models.EmailField()
+    artist_statement = models.TextField()
+    portfolio_url = models.URLField(blank=True, null=True)
+    years_of_experience = models.IntegerField()
+    specialization = models.CharField(max_length=100)
+    certifications = models.TextField(blank=True, null=True)
+
+    is_approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.full_name

@@ -1,5 +1,12 @@
 from django.contrib import admin
+<<<<<<< HEAD
 from .models import ArtistApplication, ArtStyle, Category, ContactInquiry, ContactMessage, Notification, Order, OrderItem, Product, Profile, Review, Wishlist
+=======
+from .models import Product, ContactMessage, Profile, Review, Order, OrderItem, Notification, Wishlist, Category, \
+    ArtStyle
+from .models import ArtistApplication
+
+>>>>>>> origin/main
 
 # Register your models here.
 
@@ -10,7 +17,7 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ['name', 'display_name', 'description']
     date_hierarchy = 'created_at'
     readonly_fields = ['created_at']
-    
+
     fieldsets = (
         ('Basic Information', {
             'fields': ('name', 'display_name', 'description')
@@ -24,6 +31,7 @@ class CategoryAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(ArtStyle)
 class ArtStyleAdmin(admin.ModelAdmin):
     list_display = ['display_name', 'name', 'is_active', 'created_at']
@@ -31,7 +39,7 @@ class ArtStyleAdmin(admin.ModelAdmin):
     search_fields = ['name', 'display_name', 'description']
     date_hierarchy = 'created_at'
     readonly_fields = ['created_at']
-    
+
     fieldsets = (
         ('Basic Information', {
             'fields': ('name', 'display_name', 'description')
@@ -45,6 +53,7 @@ class ArtStyleAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['title', 'owner', 'category', 'price', 'location', 'created_at']
@@ -52,29 +61,35 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ['title', 'description', 'owner__username']
     date_hierarchy = 'created_at'
 
+
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ['sender', 'product', 'created_at']
     list_filter = ['created_at']
     search_fields = ['sender__username', 'product__title', 'message']
 
+<<<<<<< HEAD
 @admin.register(ContactInquiry)
 class ContactInquiryAdmin(admin.ModelAdmin):
     list_display = ['name', 'email', 'subject', 'created_at']
     list_filter = ['created_at']
     search_fields = ['name', 'email', 'subject', 'message']
     readonly_fields = ['created_at']
+=======
+>>>>>>> origin/main
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'location', 'phone']
     search_fields = ['user__username', 'user__email', 'location']
 
+
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ['product', 'user', 'rating', 'created_at']
     list_filter = ['rating', 'created_at']
     search_fields = ['product__title', 'user__username', 'comment']
+
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
@@ -83,13 +98,14 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ['order_number', 'user__username', 'shipping_address']
     date_hierarchy = 'created_at'
     readonly_fields = ['order_number', 'created_at', 'updated_at']
-    
+
     fieldsets = (
         ('Order Information', {
             'fields': ('order_number', 'user', 'status', 'payment_status', 'payment_method')
         }),
         ('Shipping Information', {
-            'fields': ('shipping_address', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_country', 'shipping_phone')
+            'fields': ('shipping_address', 'shipping_city', 'shipping_state', 'shipping_zip_code', 'shipping_country',
+                       'shipping_phone')
         }),
         ('Financial Information', {
             'fields': ('subtotal', 'shipping_cost', 'tax', 'total')
@@ -104,11 +120,13 @@ class OrderAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['order', 'product', 'quantity', 'price', 'total_price']
     list_filter = ['order__status']
     search_fields = ['order__order_number', 'product__title']
+
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
@@ -117,7 +135,7 @@ class NotificationAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'title', 'message']
     date_hierarchy = 'created_at'
     readonly_fields = ['created_at']
-    
+
     fieldsets = (
         ('Notification Details', {
             'fields': ('user', 'notification_type', 'title', 'message', 'is_read')
@@ -132,6 +150,7 @@ class NotificationAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(Wishlist)
 class WishlistAdmin(admin.ModelAdmin):
     list_display = ['user', 'product', 'added_at']
@@ -140,6 +159,7 @@ class WishlistAdmin(admin.ModelAdmin):
     date_hierarchy = 'added_at'
     readonly_fields = ['added_at']
 
+<<<<<<< HEAD
 @admin.register(ArtistApplication)
 class ArtistApplicationAdmin(admin.ModelAdmin):
     list_display = ['full_name', 'user', 'is_approved', 'created_at']
@@ -147,10 +167,22 @@ class ArtistApplicationAdmin(admin.ModelAdmin):
     search_fields = ['full_name', 'user__username', 'specialization']
     readonly_fields = ['created_at']
 
+=======
+
+@admin.register(ArtistApplication)
+class ArtistApplicationAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'email', 'specialization', 'years_of_experience', 'is_approved', 'created_at')
+    search_fields = ('full_name', 'email', 'specialization')
+    list_filter = ('is_approved', 'specialization', 'created_at')
+>>>>>>> origin/main
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
 
         if obj.is_approved:
             profile = obj.user.profile
             profile.is_artist = True
+<<<<<<< HEAD
             profile.save()
+=======
+            profile.save()
+>>>>>>> origin/main
