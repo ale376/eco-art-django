@@ -10,7 +10,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 import datetime
 from django.core.mail import send_mail
-from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.http import HttpResponseRedirect, JsonResponse
@@ -120,17 +119,51 @@ class ProductListView(ListView):
         return context
 
 
-class ProductUploadView(CreateView):
+# class ProductUploadView(CreateView):
+#     model = Product
+#     template_name = 'market/upload.html'
+#     form_class = ProductUploadForm
+#     success_url = '/'
+#
+#     def form_valid(self, form):
+#         form.instance.owner = self.request.user
+#         response = super().form_valid(form)
+#
+#         # Create notification for new product upload
+#         create_notification(
+#             user=self.request.user,
+#             notification_type='system',
+#             title='Product Uploaded Successfully!',
+#             message=f'Your artwork "{form.instance.title}" has been uploaded and is now live on the marketplace.',
+#             related_product=form.instance
+#         )
+#
+#         return response
+
+class ProductUploadView(LoginRequiredMixin, CreateView):
     model = Product
     template_name = 'market/upload.html'
     form_class = ProductUploadForm
     success_url = '/'
 
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            application = ArtistApplication.objects.get(user=request.user)
+
+            if not application.is_approved:
+                messages.error(request, "Your artist application is still pending approval.")
+                return redirect('artist_application')
+
+        except ArtistApplication.DoesNotExist:
+            messages.error(request, "You need to apply as an artist first.")
+            return redirect('artist_application')
+
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         form.instance.owner = self.request.user
         response = super().form_valid(form)
 
-        # Create notification for new product upload
         create_notification(
             user=self.request.user,
             notification_type='system',
@@ -140,7 +173,6 @@ class ProductUploadView(CreateView):
         )
 
         return response
-
 
 class ProductDetailView(DetailView):
     model = Product
@@ -616,29 +648,86 @@ class UserFeedbackView(View):
 
         return render(request, 'market/user_feedback.html', {'form': form})
 
+# class ArtistApplicationView(LoginRequiredMixin, View):
+#     def get(self, request):
+#         form = ArtistApplicationForm()
+#         return render(request, 'market/artist_application.html', {'form': form})
+#
+#     def post(self, request):
+#         form = ArtistApplicationForm(request.POST)
+#
+#         if form.is_valid():
+#             ArtistApplication.objects.create(
+#                 user=request.user,
+#                 full_name=request.POST.get('full_name'),
+#                 email=request.user.email,
+#                 artist_statement=request.POST.get('artist_statement'),
+#                 portfolio_url=request.POST.get('portfolio_url'),
+#                 years_of_experience=request.POST.get('years_of_experience') or 0,
+#                 specialization=request.POST.get('specialization'),
+#                 certifications=request.POST.get('certifications'),
+#             )
+#
+#             create_notification(
+#                 user=request.user,
+#                 notification_type='system',
+#                 title='Artist Application Submitted',
+#                 message='Your artist application has been submitted and is under review.'
+#             )
+#
+#             messages.success(request, 'Application submitted successfully!')
+#             return redirect('profile')
+#
+#         return render(request, 'market/artist_application.html', {'form': form})
 
 class ArtistApplicationView(LoginRequiredMixin, View):
-
     def get(self, request):
+        application = ArtistApplication.objects.filter(user=request.user).order_by('-created_at').first()
+
+        if application:
+            if application.is_approved:
+                return render(request, 'market/artist_application_status.html', {
+                    'status': 'approved',
+                    'application': application
+                })
+            else:
+                return render(request, 'market/artist_application_status.html', {
+                    'status': 'pending',
+                    'application': application
+                })
+
         form = ArtistApplicationForm()
         return render(request, 'market/artist_application.html', {'form': form})
 
     def post(self, request):
+        existing_application = ArtistApplication.objects.filter(user=request.user).order_by('-created_at').first()
+
+        if existing_application:
+            if existing_application.is_approved:
+                return render(request, 'market/artist_application_status.html', {
+                    'status': 'approved',
+                    'application': existing_application
+                })
+            else:
+                return render(request, 'market/artist_application_status.html', {
+                    'status': 'pending',
+                    'application': existing_application
+                })
+
         form = ArtistApplicationForm(request.POST)
 
         if form.is_valid():
-            # SAVE TO DATABASE
             ArtistApplication.objects.create(
                 user=request.user,
-                full_name=form.cleaned_data['full_name'],
-                artist_statement=form.cleaned_data['artist_statement'],
-                portfolio_url=form.cleaned_data.get('portfolio_url', ''),
-                years_of_experience=form.cleaned_data['years_of_experience'],
-                specialization=form.cleaned_data['specialization'],
-                certifications=form.cleaned_data.get('certifications', ''),
+                full_name=request.POST.get('full_name'),
+                email=request.user.email,
+                artist_statement=request.POST.get('artist_statement'),
+                portfolio_url=request.POST.get('portfolio_url'),
+                years_of_experience=request.POST.get('years_of_experience') or 0,
+                specialization=request.POST.get('specialization'),
+                certifications=request.POST.get('certifications'),
             )
 
-            # CREATE NOTIFICATION
             create_notification(
                 user=request.user,
                 notification_type='system',
@@ -647,10 +736,9 @@ class ArtistApplicationView(LoginRequiredMixin, View):
             )
 
             messages.success(request, 'Application submitted successfully!')
-            return redirect('profile')
+            return redirect('artist_application')
 
         return render(request, 'market/artist_application.html', {'form': form})
-
 
 class NewsletterSubscriptionView(View):
     def post(self, request):
