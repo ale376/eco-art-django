@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ArtistApplication, ArtStyle, Category, ContactInquiry, ContactMessage, Notification, Order, OrderItem, Product, Profile, Review, Wishlist
+from .models import ArtistApplication, ArtStyle, Category, ContactInquiry, ContactMessage, Notification, Order, OrderItem, Product, Profile, Review, Wishlist, Feedback
 
 # Register your models here.
 
@@ -23,7 +23,13 @@ class CategoryAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ['feedback_type', 'subject', 'user', 'overall_rating', 'allow_contact', 'created_at']
+    list_filter = ['feedback_type', 'overall_rating', 'allow_contact', 'created_at']
+    search_fields = ['subject', 'message', 'user__username', 'email']
+    date_hierarchy = 'created_at'
+    readonly_fields = ['created_at']
 
 @admin.register(ArtStyle)
 class ArtStyleAdmin(admin.ModelAdmin):
